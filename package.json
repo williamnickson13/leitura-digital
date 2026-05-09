@@ -1,5 +1,8 @@
-git init
-git add .
-git commit -m "first commit"
-git remote add origin https://github.com/seu-usuario/leitura-digital.git
-git push -u origin main
+{
+  "name": "leitura-digital",
+  "version": "1.0.0",
+  "dependencies": {
+    "@supabase/supabase-js": "^2",
+    "mercadopago": "^2"
+  }
+}

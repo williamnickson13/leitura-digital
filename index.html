@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>leitura.digital — Sua biblioteca de ebooks</title>
+  <meta name="description" content="Compre uma vez, acesse para sempre. Ebooks de finanças e desenvolvimento pessoal com acesso vitalício." />
+
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet" />
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── NAV ─────────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="logo">leitura<span>.</span>digital</div>
+  <div class="nav-right" id="nav-logged-out">
+    <button class="btn-ghost" onclick="showSection('login')">Entrar</button>
+    <button class="btn-primary" onclick="showSection('register')">Criar conta</button>
+  </div>
+  <div class="nav-right" id="nav-logged-in" style="display:none">
+    <span class="nav-greeting">Olá, <strong id="nav-name"></strong></span>
+    <button class="btn-ghost" onclick="doLogout()">Sair</button>
+  </div>
+</nav>
+
+<!-- ── HERO + LOGIN ─────────────────────────────────────── -->
+<main id="screen-hero" class="screen active">
+  <div class="hero">
+    <div class="hero-copy">
+      <div class="hero-label">✦ Plataforma verificada e segura</div>
+      <h1>Conhecimento que<br>você carrega <em>para sempre</em></h1>
+      <p>Compre uma vez, acesse de qualquer dispositivo. Sua biblioteca pessoal, protegida por login — sem prazo de expiração, sem surpresas.</p>
+      <div class="trust-row">
+        <span class="trust-item">+4.200 leitores</span>
+        <span class="trust-item">Download imediato</span>
+        <span class="trust-item">Acesso vitalício</span>
+        <span class="trust-item">Pagamento seguro</span>
+      </div>
+    </div>
+
+    <!-- LOGIN / CADASTRO -->
+    <div class="auth-card" id="auth-card">
+      <div class="auth-tabs">
+        <button class="tab active" id="tab-login"    onclick="showSection('login')">Entrar</button>
+        <button class="tab"        id="tab-register" onclick="showSection('register')">Criar conta</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="form-login">
+        <div class="field">
+          <label for="login-email">E-mail</label>
+          <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <div class="field-row">
+            <label for="login-password">Senha</label>
+            <a class="link-sm" onclick="doForgotPassword()">Esqueceu?</a>
+          </div>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+        <p class="msg" id="msg-login"></p>
+        <button class="btn-full" onclick="doLogin()">Entrar na minha conta</button>
+      </div>
+
+      <!-- CADASTRO -->
+      <div id="form-register" style="display:none">
+        <div class="field">
+          <label for="reg-name">Seu nome</label>
+          <input type="text" id="reg-name" placeholder="Como quer ser chamado?" autocomplete="name" />
+        </div>
+        <div class="field">
+          <label for="reg-email">E-mail</label>
+          <input type="email" id="reg-email" placeholder="seu@email.com" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="reg-password">Senha</label>
+          <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+        </div>
+        <p class="msg" id="msg-register"></p>
+        <button class="btn-full" onclick="doRegister()">Criar conta grátis</button>
+      </div>
+
+      <div class="secure-badge">🔒 Dados protegidos com criptografia SSL</div>
+    </div>
+  </div>
+</main>
+
+<!-- ── BIBLIOTECA ────────────────────────────────────────── -->
+<section id="screen-library" class="screen">
+  <div class="library">
+    <div class="lib-header">
+      <div>
+        <p class="greeting" id="lib-greeting">Bem-vindo de volta!</p>
+        <h2>Sua Biblioteca</h2>
+      </div>
+      <button class="btn-ghost" onclick="openCatalog()">Ver catálogo completo</button>
+    </div>
+
+    <div class="books-grid" id="books-grid">
+      <!-- preenchido via JS pelo loadLibrary() -->
+      <div class="loading-state">Carregando sua biblioteca…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── MODAL DE COMPRA ───────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" onclick="closeModal()" aria-label="Fechar">×</button>
+    <div class="modal-tag">COMPRA ÚNICA · ACESSO VITALÍCIO</div>
+    <h3 id="modal-title"></h3>
+    <div class="price-big" id="modal-price"></div>
+    <ul class="feature-list">
+      <li>Acesso imediato após o pagamento</li>
+      <li>Download em PDF e EPUB</li>
+      <li>Leitura em qualquer dispositivo</li>
+      <li>Fica salvo na sua biblioteca para sempre</li>
+      <li>Garantia de 7 dias ou devolvemos</li>
+    </ul>
+    <button class="btn-buy" id="btn-buy" onclick="startCheckout()">Comprar agora com segurança</button>
+    <p class="secure-note">🔒 Pagamento protegido · Parcelamos em até 3×</p>
+  </div>
+</div>
+
+<!-- ── TOAST ─────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script src="supabase-client.js"></script>
+<script src="auth.js"></script>
+<script src="library.js"></script>
+<script src="checkout.js"></script>
+</body>
+</html>
